@@ -1,8 +1,9 @@
 streamlit
+pandas
 numpy
 matplotlib
-pandas
-pmdarima
+scikit-learn
 statsmodels
-xgboost
-sklearn
+pmdarima==2.0.4
+xgboost==2.0.3
+
