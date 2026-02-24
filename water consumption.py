@@ -17,7 +17,7 @@ st.title("💧 Malaysia Water Consumption Forecasting Dashboard")
 # ================= DATA LOADING =================
 @st.cache_data
 def load_data():
-    df = pd.read_csv(r"C:\Users\user\Downloads\water_consumption.csv")
+    df = pd.read_csv("water_consumption.csv")
 
     df['date'] = pd.to_datetime(df['date'])   # ✅ FIXED
     df['year'] = df['date'].dt.year
@@ -190,4 +190,5 @@ st.table(perf_df[["MAE", "RMSE", "MAPE (%)", "Ranking"]].style.format({
     "MAE": "{:.2f}",
     "RMSE": "{:.2f}",
     "MAPE (%)": "{:.2f}%"
+
 }))
