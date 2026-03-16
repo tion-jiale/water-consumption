@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import pmdarima as pm
-from statsmodels.tsa.holtwinters import ExponentialSmoothing
+from statsmodels.tsa.holtwinters import ExponentialSmoothing,SimpleExpSmoothing
 from xgboost import XGBRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
@@ -19,7 +19,7 @@ st.title("💧 Malaysia Water Consumption Forecasting Dashboard")
 def load_data():
     df = pd.read_csv("water_consumption.csv")
 
-    df['date'] = pd.to_datetime(df['date'])   # ✅ FIXED
+    df['date'] = pd.to_datetime(df['date'])
     df['year'] = df['date'].dt.year
 
     return df
@@ -115,6 +115,11 @@ des_model = ExponentialSmoothing(train_series, trend='add').fit()
 des_test = des_model.forecast(test_size)
 des_fore = des_model.forecast(test_size + forecast_years)[test_size:]
 
+# Simple Exponential Smoothing
+ses_model = SimpleExpSmoothing(train_series).fit()
+ses_test = ses_model.forecast(test_size)
+ses_fore = ses_model.forecast(test_size + forecast_years)[test_size:] 
+
 xgb_test, xgb_fore = get_ml_forecast('XGB', train_df, test_size, forecast_years)
 rf_test, rf_fore = get_ml_forecast('RF', train_df, test_size, forecast_years)
 
@@ -134,6 +139,7 @@ with col1:
     plot_data = [
         (arima_test, arima_fore, 'blue', 'ARIMA'),
         (des_test, des_fore, 'red', 'DES'),
+        (ses_test, ses_fore, 'purple', 'SES'),
         (xgb_test, xgb_fore, 'green', 'XGBoost'),
         (rf_test, rf_fore, 'orange', 'Random Forest')
     ]
@@ -149,6 +155,7 @@ with col2:
     pred_df = pd.DataFrame({
         "Year": future_years,
         "ARIMA": arima_fore,
+        "SES": ses_fore,
         "DES": des_fore,
         "XGBoost": xgb_fore,
         "Random Forest": rf_fore
@@ -170,6 +177,7 @@ actual_vals = test_df['value'].values
 
 metrics_dict = {
     "ARIMA": get_metrics(actual_vals, arima_test),
+    "SES": get_metrics(actual_vals, ses_test),
     "DES": get_metrics(actual_vals, des_test),
     "XGBoost": get_metrics(actual_vals, xgb_test),
     "Random Forest": get_metrics(actual_vals, rf_test)
